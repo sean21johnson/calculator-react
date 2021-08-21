@@ -37,6 +37,7 @@ function App() {
 
 	const handleDecimalClick = () => {
 		const replicateCurrentOperation = [...currentOperation];
+    replicateCurrentOperation.push(".")
 		setCurrentOperation(replicateCurrentOperation);
 		handleNumDisplay(".");
 	};
@@ -47,16 +48,77 @@ function App() {
 	};
 
 	const handleNumDisplay = (newCharacter) => {
+
     const replicatedOperation = [...currentOperation, newCharacter];
 
-    console.log('replicatedOperation is', replicatedOperation)
+    if (typeof(replicatedOperation[replicatedOperation.length - 1]) !== "number" && replicatedOperation[replicatedOperation.length - 1] !== ".") {
+      setNumDisplay("");
+    } else if (replicatedOperation.length === 1 && typeof(replicatedOperation[replicatedOperation.length - 1]) === "number") {
+      setNumDisplay(replicatedOperation[replicatedOperation.length - 1])
+    } else {
+      let currentIndex = replicatedOperation.length - 1;
+      let currentNums = "";
+
+      while (currentIndex >= 0) {
+        if (typeof replicatedOperation[currentIndex] === "string" && replicatedOperation[currentIndex] !== ".") {
+          break;
+        } else {
+          currentNums += replicatedOperation[currentIndex].toString();
+          currentIndex--
+        }
+      }
+
+      setNumDisplay(currentNums.split("").reverse().join(""))
+
+    }
 	};
 
 	const handleEquationClick = () => {
-		console.log("handleEquation was triggered");
-	};
+		const modArr = [];
+    let currentNumStr = "";
 
-  console.log('currentOperation outside of function', currentOperation)
+    let replicatedOperation = [...currentOperation];
+
+    for (let i = 0; i < replicatedOperation.length; i++) {
+      const currentEl = replicatedOperation[i];
+
+      if (currentEl === ".") {
+        currentNumStr += ".";
+      } else if (typeof currentEl === "number") {
+        currentNumStr += currentEl.toString();
+
+        if (i + 1 === replicatedOperation.length) {
+          modArr.push(parseFloat(currentNumStr))
+        }
+      } else {
+        modArr.push(parseFloat(currentNumStr));
+        modArr.push(currentEl);
+
+        currentNumStr = "";
+      }
+    }
+
+    let finalVal;
+
+    for (let i = 0; i < modArr.length; i++) {
+      if (i === 0) {
+        finalVal = modArr[i];
+      } else if (modArr[i - 1] === "+") {
+        finalVal += modArr[i]
+      } else if (modArr[i - 1] === "-") {
+        finalVal -= modArr[i]
+      } else if (modArr[i - 1] === "*") {
+        finalVal *= modArr[i]
+      } else if (modArr[i - 1] === "/") {
+        finalVal /= modArr[i]
+      } else {
+        continue;
+      }
+    }
+
+    setNumDisplay(finalVal.toFixed(2));
+
+	};
 
 	return (
 		<div className="App">
